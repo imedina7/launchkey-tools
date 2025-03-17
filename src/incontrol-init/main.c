@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
   snd_rawmidi_t* midi_out = device_connect(device, SND_RAWMIDI_STREAM_OUTPUT);
   
   enable_extended_mode(midi_out);
-
+  init_pads(midi_out);
   snd_rawmidi_close(midi_out); 
   return 0;
 }

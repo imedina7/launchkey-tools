@@ -2,6 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+snd_seq_t* seq_connect(const char* client_name) {
+  snd_seq_t* client = NULL;
+  if(snd_seq_open(&client, client_name, 1, 0) < 0) {
+    fprintf(stderr, "Error connecting to sequencer. Exitting...\n");
+    exit(1);
+  }
+  return client;
+}
+
 void send_midi_message(snd_rawmidi_t *midi_out, unsigned char *message, int length) 
 {
   if (snd_rawmidi_write(midi_out, message, length) < 0) { 
@@ -49,4 +58,6 @@ snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_di
   
   return midi_port;
 }
-
+void device_disconnect(snd_rawmidi_t *port) {
+  CHK(snd_rawmidi_close(port), "Failed to close port.\n");
+}
