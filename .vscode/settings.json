@@ -11,9 +11,13 @@
     "explorer.copyRelativePathSeparator": "/",
     "files.autoSave": "onFocusChange",
     "files.associations": {
+        "*.map": "xml",
         ".clang*": "yaml",
         "*.hpp.in": "cpp",
-        "*.in": "cpp"
+        "*.in": "cpp",
+        "layout_preset.h": "c",
+        "stdio.h": "c",
+        "iniparser.h": "c"
     },
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
@@ -163,7 +167,7 @@
     "C_Cpp_Runner.compilerArgs": [],
     "C_Cpp_Runner.linkerArgs": [],
     "C_Cpp_Runner.includePaths": [],
-    "C_Cpp_Runner.includeSearch": ["*", "**/*"],
+    "C_Cpp_Runner.includeSearch": ["*", "**/*", "vendor/*", "vendor/**/*"],
     "C_Cpp_Runner.excludeSearch": [
         "**/build",
         "**/build/**",

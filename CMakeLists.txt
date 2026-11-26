@@ -8,24 +8,20 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 
 
 
-file(GLOB_RECURSE LIB "src/lib/*.c")
+file(GLOB_RECURSE LIB "src/core/*.c")
 file(GLOB_RECURSE INCONTROL_INIT_SOURCES "src/incontrol-init/*.c")
 file(GLOB_RECURSE SEQUENCER_SOURCES "src/sequencer/*.c")
 
-# Add an executable 
+# Add an executable
 add_executable(incontrol-init ${LIB} ${INCONTROL_INIT_SOURCES})
 add_executable(incontrol-sequencer ${LIB} ${SEQUENCER_SOURCES})
+add_subdirectory(vendor/iniparser build)
 
-target_link_libraries(incontrol-init PRIVATE asound)
-target_link_libraries(incontrol-sequencer PRIVATE asound)
-target_include_directories(incontrol-init PRIVATE "src/lib")
-target_include_directories(incontrol-sequencer PRIVATE "src/lib")
-add_subdirectory(vendor/iniparser)
+add_dependencies(incontrol-init iniparser-static)
 
-# Add an executable
-add_executable(${PROJECT} ${SOURCES})
-
-target_link_directories(${PROJECT} PRIVATE build/vendor/iniparser)
-include_directories(${PROJECT} vendor/iniparser/src build/)
-target_link_libraries(${PROJECT} PRIVATE asound)
-target_link_libraries(${PROJECT} PRIVATE iniparser)
+target_link_libraries(incontrol-init PRIVATE asound iniparser)
+target_link_directories(incontrol-init PRIVATE build/vendor/iniparser)
+target_include_directories(incontrol-init PRIVATE "src/core" "src" ${iniparser_PUBLIC_HEADERS})
+target_link_libraries(incontrol-sequencer PRIVATE asound iniparser)
+target_link_directories(incontrol-sequencer PRIVATE build/vendor/iniparser)
+target_include_directories(incontrol-sequencer PRIVATE ${iniparser_PUBLIC_HEADERS} "src/core" "src")

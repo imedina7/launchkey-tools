@@ -1,10 +1,13 @@
 #include "midi.h"
 #include "incontrol.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #define MAX_INSTRUMENTS 8
+
+app_config_t *global_config;
 
 typedef struct {
   snd_rawmidi_t* extended_in;
@@ -21,8 +24,8 @@ typedef struct {
 
 typedef struct {
  float instrument_velocity[MAX_INSTRUMENTS];
- float step_velocity[MAX_INSTRUMENTS][];
- unsigned char current_step = 0;
+//  float step_velocity[MAX_INSTRUMENTS][];
+//  unsigned char current_step = 0;
  instrument_track tracks[MAX_INSTRUMENTS];
 } sequencer_state;
 
@@ -42,38 +45,37 @@ void midi_close(IncontrolPort* port) {
 
 int main (int argc, char** argv) {
   IncontrolPort* port = malloc(sizeof(IncontrolPort));
-
+  global_config = malloc(sizeof(app_config_t));
+  load_config(global_config, argc, argv, "launchkey.conf");
   printf("Opening ports...\n");
   midi_open(argv[1], argv[2], port);
   printf("Querying extended mode...\n");
   do{
-    bool pads_ext = query_extended_mode(port->extended_out, port->extended_in, INCONTROL_STATUS_SECTION_PADS);
-    bool faders_ext = query_extended_mode(port->extended_out, port->extended_in, INCONTROL_STATUS_SECTION_FADERS);
-    bool knobs_ext = query_extended_mode(port->extended_out, port->extended_in, INCONTROL_STATUS_SECTION_KNOBS);
-    printf("Extended mode:\n");
+    // bool pads_ext = query_extended_mode(port->extended_out, port->extended_in);
+    // printf("Extended mode:\n");
 
-    printf("    Pads: ");
-    if(pads_ext) {
-      printf("Enabled\n");
-    } else {
-      printf("Disabled\n");
-    }
+    // printf("    Pads: ");
+    // if(pads_ext) {
+    //   printf("Enabled\n");
+    // } else {
+    //   printf("Disabled\n");
+    // }
 
-    printf("    Knobs: ");
-    if(knobs_ext) {   
-      printf("Enabled\n");                         
-    } else {
-      printf("Disabled\n");
-    }
+    // printf("    Knobs: ");
+    // if(knobs_ext) {
+    //   printf("Enabled\n");
+    // } else {
+    //   printf("Disabled\n");
+    // }
 
-    printf("    Faders: ");
-    if(faders_ext) {
-      printf("Enabled\n");
-    } else {
-      printf("Disabled\n");
-    }
+    // printf("    Faders: ");
+    // if(faders_ext) {
+    //   printf("Enabled\n");
+    // } else {
+    //   printf("Disabled\n");
+    // }
 
-    printf("\n");
+    // printf("\n");
 
   } while (true);
 
@@ -82,4 +84,3 @@ int main (int argc, char** argv) {
   free(port);
   return 0;
 }
-

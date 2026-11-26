@@ -27,12 +27,12 @@ int main(int argc, char** argv) {
 
   strcat(basic_device, ",0");
   strcat(incontrol_device, ",1");
-  
+
   snd_rawmidi_t* midi_out = device_connect(incontrol_device, SND_RAWMIDI_STREAM_OUTPUT);
   snd_rawmidi_t* midi_in = device_connect(incontrol_device, SND_RAWMIDI_STREAM_INPUT);
-  
+
   enable_extended_mode(midi_out);
-  init_pads(midi_out);
+  init_pads(midi_out, midi_in);
   snd_rawmidi_close(midi_out);
   snd_rawmidi_close(midi_in);
   return 0;

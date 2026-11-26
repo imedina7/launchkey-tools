@@ -1,11 +1,9 @@
 #ifndef INCONTROL_H
 #define INCONTROL_H
-#include "midi.h"
 #include <stdbool.h>
+#include "midi.h"
 
-bool query_extended_mode(snd_rawmidi_t *midi_out, snd_rawmidi_t *midi_in);
-
-void enable_extended_mode(snd_rawmidi_t *midi_out);
+#define BIT(n) (0x01 << n)
 
 char mix_rg_color_code(char red, char green);
 
@@ -41,6 +39,17 @@ enum InControlMessage {
     INCONTROL_MESSAGE_STATUS = 0x9f,
 };
 
+enum incontrol_status_section {
+  INCONTROL_STATUS_SECTION_MUTE_BTN = BIT(0),
+  INCONTROL_STATUS_SECTION_FADERS = BIT(1),
+  INCONTROL_STATUS_SECTION_KNOBS = BIT(2),
+  INCONTROL_STATUS_SECTION_PADS = BIT(3)
+};
+
+void enable_extended_mode(snd_rawmidi_t *midi_out);
+void init_pads (snd_rawmidi_t *midi_out, snd_rawmidi_t *midi_in);
+unsigned char get_launchkey_pad_color(int red, int green);
+bool query_extended_mode(snd_rawmidi_t *midi_out, snd_rawmidi_t *midi_in);
 int set_pad_color(snd_rawmidi_t *midi_out, enum InControlPad pad, char colormix);
 int set_pad_flash(snd_rawmidi_t *midi_out, enum InControlPad pad, char colormix);
 
