@@ -10,8 +10,26 @@
 
 snd_seq_t* seq_connect(const char* client_name);
 
-void send_midi_message(snd_rawmidi_t *midi_out, unsigned char *message, int length);
-void rcv_midi_message(snd_rawmidi_t *midi_in, unsigned char *message, int length);
+typedef struct midi_port midi_port_t;
+
+struct midi_port {
+    void *out;
+    void *in;
+};
+
+enum midi_api {
+    DUMMY = 0,
+    ALSA_RAW
+};
+
+enum midi_direction {
+    IN = 0,
+    OUT,
+    DUPLEX
+};
+
+void send_midi_message(snd_rawmidi_t *midi_out, unsigned char *message);
+void rcv_midi_message(snd_rawmidi_t *midi_in, unsigned char *message);
 snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_direction);
 void device_disconnect(snd_rawmidi_t* port);
 #endif

@@ -1,4 +1,7 @@
 #include "midi.h"
+#include "config.h"
+#include "menu.h"
+#include "layout_preset.h"
 #include "incontrol.h"
 
 #include <alsa/asoundlib.h>
@@ -13,16 +16,32 @@ void enable_extended_mode(snd_rawmidi_t *midi_out) {
   send_midi_message(midi_out, extended_mode, sizeof(extended_mode)); 
 }
 
-void init_pads(snd_rawmidi_t *midi_out) {
-  unsigned char pad_colors[LAUNCHKEY_NUM_PADS] = {};
-  unsigned char pad_numbers[LAUNCHKEY_NUM_PADS] = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
-  for(int i = 0; i < LAUNCHKEY_NUM_PADS; i++) {
-    pad_colors[i] = get_launchkey_pad_color(0,2);
+void init_pads(snd_rawmidi_t *midi_out, snd_rawmidi_t *midi_in) {
+  preset_t default_preset;
+
+  set_preset_name(&default_preset, "default");
+
+  load_preset(&default_preset);
+  print_preset(&default_preset);
+
+
+  bool extended_enabled = query_extended_mode(midi_out, midi_in);
+  if(!extended_enabled) {
+    enable_extended_mode(midi_out);
+    printf("Extended mode is disabled, enabling...\n");
   }
-  for(int i = 0; i < LAUNCHKEY_NUM_PADS; i++) {
-    unsigned char turn_on_message[] = {0xBF, pad_numbers[i], pad_colors[i]};
-    send_midi_message(midi_out, turn_on_message, sizeof(turn_on_message));
+
+  printf("Extended mode enabled\n");
+
+  menu_item_t *current_item = default_preset.menus;
+  for(int i = 0; i < default_preset.menu_count; i++) {
+    printf("Sending color for \"%s\" menu\n", current_item->label);
+    printf("Color = %x\nMidi note = %d\n", current_item->color, current_item->midi_note);
+    set_pad_color(midi_out, current_item->midi_note, current_item->color);
+    current_item++;
   }
+
+  destroy_preset(&default_preset);
 }
 
 unsigned char get_launchkey_pad_color(int red, int green) {

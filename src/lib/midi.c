@@ -1,3 +1,4 @@
+#include "config.h"
 #include "midi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,22 +12,25 @@ snd_seq_t* seq_connect(const char* client_name) {
   return client;
 }
 
-void send_midi_message(snd_rawmidi_t *midi_out, unsigned char *message, int length) 
+
+void send_midi_message(snd_rawmidi_t *midi_out, unsigned char *message)
 {
-  if (snd_rawmidi_write(midi_out, message, length) < 0) { 
-    fprintf(stderr, "Error writing MIDI message\n"); 
-    exit(1); 
-  } 
-  snd_rawmidi_drain(midi_out); 
+  const int length = sizeof(message);
+  if (snd_rawmidi_write(midi_out, message, length) < 0) {
+    fprintf(stderr, "Error writing MIDI message\n");
+    exit(1);
+  }
+  snd_rawmidi_drain(midi_out);
 }
 
-void rcv_midi_message(snd_rawmidi_t *midi_in, unsigned char *message, int length) 
+void rcv_midi_message(snd_rawmidi_t *midi_in, unsigned char *message)
 {
-  if (snd_rawmidi_read(midi_in, message, length) < 0) { 
-    fprintf(stderr, "Error reading MIDI message\n"); 
-    exit(1); 
-  } 
-  snd_rawmidi_drain(midi_in); 
+  const int length = sizeof(message);
+  if (snd_rawmidi_read(midi_in, message, length) < 0) {
+    fprintf(stderr, "Error reading MIDI message\n");
+    exit(1);
+  }
+  snd_rawmidi_drain(midi_in);
 }
 
 snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_direction) {
@@ -34,7 +38,7 @@ snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_di
   int result;
   int retries = 1;
 
-  // Open MIDI device 
+  // Open MIDI device
   do
   {
     if (stream_direction == SND_RAWMIDI_STREAM_OUTPUT) {
@@ -44,9 +48,9 @@ snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_di
     if(stream_direction == SND_RAWMIDI_STREAM_INPUT) {
       result = snd_rawmidi_open(&midi_port, NULL, device, 0);
     }
-    printf("Device not found, retrying (%d of %d)...\n", retries++, MAX_RETRIES);
+    printf("Device not found, retrying (%d of %d)...\n", retries++, global_config->midi_retries);
     sleep(DELAY_SECONDS);
-  } while (result < 0 && retries < MAX_RETRIES);
+  } while (result < 0 && retries < global_config->midi_retries);
 
   if(result < 0) {
     fprintf(stderr, "Failed to connect to device.\n");
@@ -55,9 +59,10 @@ snd_rawmidi_t* device_connect(const char* device, snd_rawmidi_stream_t stream_di
   const char* device_id = snd_rawmidi_name(midi_port);
 
   printf("Connected successfully to device \"%s\"\n", device_id);
-  
+
   return midi_port;
 }
+
 void device_disconnect(snd_rawmidi_t *port) {
   CHK(snd_rawmidi_close(port), "Failed to close port.\n");
 }
